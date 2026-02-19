@@ -51,3 +51,17 @@ External execution instructions for live load test:
 Next actions (tracked in TODO):
 - Perform the live soak test externally and capture RSS and heap profiles.
 - Replace map[string]string metadata with a small struct, add sync.Pool for buffers, and consider a minimal Telegram client to reduce allocations.
+
+Update: Live load test plan and environment constraints (2026-02-19)
+- Slim telegram-only binary built with tags "telegram pprof" and ldflags "-s -w"; simulate mode guards added to skip network I/O when SIMULATE=1.
+- Sandbox limitation: /tmp is mounted with noexec; executing binaries from /workspace and /tmp failed (Permission denied). Live load test cannot run in this environment.
+- Added run_live_test.sh to support external execution on an exec-enabled host/container. It sets up minimal config, starts gateway with GOMEMLIMIT/GOGC limits, and captures GNU time metrics and optional pprof heap.
+
+Next steps (external):
+1) Copy/Build binary on an exec-enabled machine and ensure it is executable.
+   CGO_ENABLED=0 GOMAXPROCS=1 go build -buildvcs=false -tags "telegram pprof" -trimpath -ldflags "-s -w -X main.version=v0.1-telegram-slim" -o ./picoclaw-telegram ./cmd/picoclaw
+2) Provide TELEGRAM_TOKEN in environment or ~/.picoclaw/config.json.
+3) Run live test helper:
+   GOMEMLIMIT=5MiB GOGC=20 BURST=100 ./run_live_test.sh
+4) Send ~100 messages to the bot during the prompt; collect live_time.txt and (if pprof enabled) heap.pb.gz for analysis.
+5) Share artifacts; we will apply targeted optimizations (metadata struct, sync.Pool buffers, reduced bus buffers via -tags smallbuf, streaming JSON, and a minimal long-poll loop) to achieve <5MB steady-state.
