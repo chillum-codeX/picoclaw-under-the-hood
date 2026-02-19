@@ -65,3 +65,21 @@ Next steps (external):
    GOMEMLIMIT=5MiB GOGC=20 BURST=100 ./run_live_test.sh
 4) Send ~100 messages to the bot during the prompt; collect live_time.txt and (if pprof enabled) heap.pb.gz for analysis.
 5) Share artifacts; we will apply targeted optimizations (metadata struct, sync.Pool buffers, reduced bus buffers via -tags smallbuf, streaming JSON, and a minimal long-poll loop) to achieve <5MB steady-state.
+
+Update: Live load test execution plan and optimization targets (2026-02-19)
+- Environment limitation: Sandbox mounts prevent executing the built binary (/tmp is noexec; /workspace via gcsfuse blocked). Live load test must be executed externally.
+- External run instructions:
+  1) Build telegram-only slim binary on an exec-enabled machine: CGO_ENABLED=0 GOMAXPROCS=1 go build -buildvcs=false -tags "telegram pprof smallbuf" -trimpath -ldflags "-s -w -X main.version=v0.1-telegram-slim" -o ./picoclaw-telegram ./cmd/picoclaw
+  2) Set TELEGRAM_TOKEN and minimal config (~/.picoclaw/config.json). Use ./run_live_test.sh (added) to start gateway under GOMEMLIMIT=5MiB and GOGC=20.
+  3) Send ~50–100 messages to the bot and capture: live_time.txt (GNU time key metrics) and optional heap profile via pprof (curl http://127.0.0.1:6060/debug/pprof/heap -o heap.pb.gz when PPROF=1).
+- What to collect:
+  - Maximum resident set size (kB) from GNU time; target < 5120 kB steady-state under 50–100 message burst.
+  - pprof top allocators (go tool pprof -top ./picoclaw-telegram heap.pb.gz) to identify hotspots.
+- Planned code optimizations after artifacts:
+  - Replace metadata map[string]string with a compact struct to reduce per-message allocations.
+  - Introduce sync.Pool for reusable byte buffers/builders in telegram handlers and utils.DownloadFile.
+  - Reduce bus channel buffer capacity via -tags smallbuf (already added, sets cap=16).
+  - Gate outbound animations (SendChatAction, "Thinking..." placeholder) behind config or SIMULATE flags; skip by default in slim builds.
+  - Switch heavy JSON paths to streaming/zero-allocation parsing where feasible.
+  - Evaluate a minimal long-poll loop replacing telegohandler to reduce handler overhead.
+- Next action: Run ./run_live_test.sh externally and share live_time.txt and heap.pb.gz so we can produce the profile report and apply fixes.
