@@ -387,6 +387,7 @@ cd "$REPO_DIR"
 CGO_ENABLED=0 GOMAXPROCS=1 /usr/local/go/bin/go build -buildvcs=false -tags telegram -trimpath \
   -ldflags "-s -w -X main.version=v0.1-telegram-min" \
   -o "$WORKDIR/picoclaw-telegram" ./cmd/picoclaw
+chmod +x "$WORKDIR/picoclaw-telegram"
 ls -lh "$WORKDIR/picoclaw-telegram"
 
 echo "[7/7] Memory profiling (status command) with tight limits"
