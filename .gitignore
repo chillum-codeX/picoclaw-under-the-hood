@@ -9,6 +9,9 @@ membench
 *.txt
 !bench_results.txt
 !bench_results_default.txt
+!bench_results_linux.txt
+!bench_results_linux_1000.txt
+!live_gateway_results.txt
 !pprof_top.txt
 
 # OS files
