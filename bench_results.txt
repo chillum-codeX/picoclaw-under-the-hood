@@ -1,0 +1,22 @@
+=== PicoClaw 5MB Feasibility Memory Benchmark ===
+GOMEMLIMIT=5MiB  GOGC=20  BURST=100
+
+[mem 1-baseline          ] RSS= 6356 KB (6.21 MB)  HeapAlloc=   73384 B  HeapSys= 4063232 B  HeapInuse=  368640 B  StackInuse=131072 B  Sys= 6377472 B  NumGC=1
+[mem 2-config-loaded     ] RSS= 7296 KB (7.12 MB)  HeapAlloc=  144864 B  HeapSys= 8257536 B  HeapInuse=  491520 B  StackInuse=131072 B  Sys=10899456 B  NumGC=2
+[mem 3-bus-created       ] RSS= 7348 KB (7.18 MB)  HeapAlloc=  148176 B  HeapSys= 8257536 B  HeapInuse=  499712 B  StackInuse=131072 B  Sys=10907648 B  NumGC=3
+[mem 4-after-burst       ] RSS= 7524 KB (7.35 MB)  HeapAlloc=  148880 B  HeapSys= 8224768 B  HeapInuse=  507904 B  StackInuse=163840 B  Sys=10907648 B  NumGC=4
+  (Messages produced: 100, consumed: 100)
+[mem 5-steady-state      ] RSS= 7528 KB (7.35 MB)  HeapAlloc=  148064 B  HeapSys= 8224768 B  HeapInuse=  499712 B  StackInuse=163840 B  Sys=10907648 B  NumGC=6
+
+Heap profile written: heap_benchmark.pb.gz
+
+=== FINAL VERDICT ===
+Final RSS:            8172 KB (7.98 MB)
+HeapAlloc:            1371048 B (1338.91 KB)
+HeapSys:              8192000 B (8000.00 KB)
+Sys (total from OS):  12609784 B (12.03 MB)
+StackInuse:           163840 B (160.00 KB)
+NumGC:                9
+GC CPU fraction:      0.003679
+
+ΓÜá∩╕Å  OVER: RSS 8172 KB (7.98 MB) EXCEEDS 5 MB target by 3052 KB (2.98 MB)

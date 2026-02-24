@@ -1,0 +1,23 @@
+# Binaries
+*.exe
+picoclaw-telegram
+membench
+*.pb.gz
+
+# Temp files
+*.log
+*.txt
+!bench_results.txt
+!bench_results_default.txt
+!pprof_top.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Go
+vendor/
